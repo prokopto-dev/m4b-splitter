@@ -1,4 +1,6 @@
+# ruff: noqa: B008
 """Command-line interface for M4B splitter."""
+# we will ignore Ruff B008 here because of how Typer handles args
 
 import sys
 from enum import Enum
@@ -10,13 +12,13 @@ try:
     from rich.console import Console
     from rich.panel import Panel
     from rich.progress import (
+        BarColumn,
         Progress,
         SpinnerColumn,
-        TextColumn,
-        BarColumn,
         TaskProgressColumn,
-        TimeRemainingColumn,
+        TextColumn,
         TimeElapsedColumn,
+        TimeRemainingColumn,
     )
     from rich.table import Table
     from rich.text import Text
@@ -26,13 +28,13 @@ except ImportError:
     RICH_AVAILABLE = False
     typer = None  # type: ignore
 
-from m4b_splitter.dependencies import check_dependencies, format_dependency_check
 from m4b_splitter import (
-    M4BSplitter,
     IPOD_PRESETS,
     FFmpegProgress,
+    M4BSplitter,
     format_time_human,
 )
+from m4b_splitter.dependencies import check_dependencies, format_dependency_check
 
 
 def parse_duration(duration_str: str) -> float:
@@ -89,10 +91,8 @@ if RICH_AVAILABLE:
 
     console = Console()
 
-    def print_presets_table():
-        table = Table(
-            title="iPod Encoding Presets", show_header=True, header_style="bold cyan"
-        )
+    def print_presets_table() -> None:
+        table = Table(title="iPod Encoding Presets", show_header=True, header_style="bold cyan")
         table.add_column("Preset", style="green")
         table.add_column("Sample Rate")
         table.add_column("Bitrate")
@@ -142,7 +142,7 @@ if RICH_AVAILABLE:
         console.print(table)
 
     @app.command()
-    def check():
+    def check() -> None:
         """Check if ffmpeg/ffprobe are installed."""
         result = check_dependencies()
 
@@ -153,37 +153,25 @@ if RICH_AVAILABLE:
             content.append(f"OS: {result.os_name}\n\n", style="dim")
             content.append(f"ffmpeg:  {result.ffmpeg.path}\n", style="cyan")
             content.append(f"ffprobe: {result.ffprobe.path}\n", style="cyan")
-            console.print(
-                Panel(content, title="Dependency Check", border_style="green")
-            )
+            console.print(Panel(content, title="Dependency Check", border_style="green"))
         else:
             console.print(format_dependency_check(result))
             raise typer.Exit(1)
 
     @app.command()
-    def presets():
+    def presets() -> None:
         """Show available iPod encoding presets."""
         print_presets_table()
 
     @app.command()
     def split(
-        input_file: Path = typer.Argument(
-            ..., help="Input M4B file to split", exists=True
-        ),
-        output_dir: Path = typer.Option(
-            None, "--output", "-o", help="Output directory"
-        ),
-        max_duration: str = typer.Option(
-            "8h", "--duration", "-d", help="Max duration per part"
-        ),
-        pattern: str = typer.Option(
-            "{title} - Part {part} of {total}.m4b", "--pattern", "-p"
-        ),
-        ipod: bool = typer.Option(
-            False, "--ipod", help="Re-encode for iPod compatibility"
-        ),
+        input_file: Path = typer.Argument(..., help="Input M4B file to split", exists=True),
+        output_dir: Path = typer.Option(None, "--output", "-o", help="Output directory"),
+        max_duration: str = typer.Option("8h", "--duration", "-d", help="Max duration per part"),
+        pattern: str = typer.Option("{title} - Part {part} of {total}.m4b", "--pattern", "-p"),
+        ipod: bool = typer.Option(False, "--ipod", help="Re-encode for iPod compatibility"),
         ipod_preset: PresetChoice = typer.Option(PresetChoice.standard, "--preset"),
-    ):
+    ) -> None:
         """Split an M4B audiobook file into smaller parts."""
         dep_result = check_dependencies()
         if not dep_result.all_found:
@@ -198,7 +186,7 @@ if RICH_AVAILABLE:
                 raise typer.Exit(1)
         except ValueError as e:
             console.print(f"[red]Error:[/red] {e}")
-            raise typer.Exit(1)
+            raise typer.Exit(1) from e
 
         if output_dir is None:
             output_dir = input_file.parent
@@ -246,18 +234,13 @@ if RICH_AVAILABLE:
             console=console,
             transient=False,
         ) as progress:
-
             main_task = progress.add_task("Splitting audiobook...", total=100)
-            ffmpeg_task = progress.add_task(
-                "[cyan]Waiting...", total=100, visible=False
-            )
+            ffmpeg_task = progress.add_task("[cyan]Waiting...", total=100, visible=False)
 
             def progress_callback(
                 step: str, percent: float, ffmpeg_prog: FFmpegProgress | None
-            ):
-                progress.update(
-                    main_task, completed=percent, description=f"[bold blue]{step}"
-                )
+            ) -> None:
+                progress.update(main_task, completed=percent, description=f"[bold blue]{step}")
 
                 if ffmpeg_prog and ffmpeg_prog.percent > 0:
                     progress.update(ffmpeg_task, visible=True)
@@ -342,7 +325,7 @@ if RICH_AVAILABLE:
     def main_callback(
         ctx: typer.Context,
         version: bool = typer.Option(False, "--version", "-v", help="Show version"),
-    ):
+    ) -> None:
         """M4B Splitter - Split audiobook files by chapter."""
         if version:
             from m4b_splitter import __version__
@@ -375,13 +358,9 @@ else:
         split_parser.add_argument("input_file", type=Path, help="Input M4B file")
         split_parser.add_argument("-o", "--output", type=Path, help="Output directory")
         split_parser.add_argument("-d", "--duration", default="8h")
-        split_parser.add_argument(
-            "-p", "--pattern", default="{title} - Part {part} of {total}.m4b"
-        )
+        split_parser.add_argument("-p", "--pattern", default="{title} - Part {part} of {total}.m4b")
         split_parser.add_argument("--ipod", action="store_true")
-        split_parser.add_argument(
-            "--preset", default="standard", choices=list(IPOD_PRESETS.keys())
-        )
+        split_parser.add_argument("--preset", default="standard", choices=list(IPOD_PRESETS.keys()))
 
         parser.add_argument("-v", "--version", action="store_true")
 
@@ -457,11 +436,15 @@ else:
             parser.print_help()
             return 0
 
-    def app():
+    def app() -> None:
+        """
+        Fallback CLI using argparse.
+        """
         sys.exit(fallback_main())
 
 
-def main():
+def main() -> None:
+    """Entry point for M4B Splitter CLI."""
     if RICH_AVAILABLE:
         app()
     else:

@@ -32,6 +32,15 @@ Requirements:
 __version__ = "1.2.0"
 __author__ = "M4B Splitter Contributors"
 
+from m4b_splitter.dependencies import (
+    DependencyCheckResult,
+    DependencyStatus,
+    OSType,
+    check_dependencies,
+    ensure_dependencies,
+    format_dependency_check,
+    require_dependencies,
+)
 from m4b_splitter.models import AudioMetadata, Chapter, SplitPart, SplitResult
 from m4b_splitter.probe import (
     ProbeError,
@@ -50,61 +59,52 @@ from m4b_splitter.progress import (
     SilentProgress,
 )
 from m4b_splitter.splitter import (
-    M4BSplitter,
-    SplitterError,
-    split_m4b,
-    IPodSettings,
     IPOD_PRESETS,
     FFmpegProgress,
+    IPodSettings,
+    M4BSplitter,
+    SplitterError,
     format_time_human,
-)
-from m4b_splitter.dependencies import (
-    check_dependencies,
-    ensure_dependencies,
-    require_dependencies,
-    format_dependency_check,
-    DependencyCheckResult,
-    DependencyStatus,
-    OSType,
+    split_m4b,
 )
 
 __all__ = [
-    # Version
-    "__version__",
+    "IPOD_PRESETS",
+    "AudioMetadata",
     # Models
     "Chapter",
-    "AudioMetadata",
-    "SplitPart",
-    "SplitResult",
-    # Probe functions
-    "probe_file",
-    "extract_chapters",
-    "extract_metadata",
-    "get_duration",
-    "validate_m4b_file",
-    "ProbeError",
-    # Progress tracking
-    "ProgressStep",
-    "ProgressUpdate",
-    "ProgressCallback",
     "ConsoleProgress",
-    "SilentProgress",
-    "ProgressTracker",
-    # Splitter
-    "M4BSplitter",
-    "split_m4b",
-    "SplitterError",
-    "format_time_human",
+    "DependencyCheckResult",
+    "DependencyStatus",
     "FFmpegProgress",
     # iPod settings
     "IPodSettings",
-    "IPOD_PRESETS",
+    # Splitter
+    "M4BSplitter",
+    "OSType",
+    "ProbeError",
+    "ProgressCallback",
+    # Progress tracking
+    "ProgressStep",
+    "ProgressTracker",
+    "ProgressUpdate",
+    "SilentProgress",
+    "SplitPart",
+    "SplitResult",
+    "SplitterError",
+    # Version
+    "__version__",
     # Dependency checking
     "check_dependencies",
     "ensure_dependencies",
-    "require_dependencies",
+    "extract_chapters",
+    "extract_metadata",
     "format_dependency_check",
-    "DependencyCheckResult",
-    "DependencyStatus",
-    "OSType",
+    "format_time_human",
+    "get_duration",
+    # Probe functions
+    "probe_file",
+    "require_dependencies",
+    "split_m4b",
+    "validate_m4b_file",
 ]

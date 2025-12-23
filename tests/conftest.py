@@ -1,10 +1,13 @@
 """Shared pytest fixtures and configuration."""
 
-import pytest
-import subprocess
-import tempfile
-from pathlib import Path
 import sys
+from pathlib import Path
+
+import pytest
+
+from m4b_splitter.dependencies import check_dependencies
+from m4b_splitter.models import AudioMetadata, Chapter
+from tests.test_utils import create_test_m4b
 
 # Ensure the package is importable
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -21,7 +24,6 @@ def tmp_m4b_dir(tmp_path):
 @pytest.fixture
 def sample_chapters():
     """Create sample chapters for testing."""
-    from m4b_splitter.models import Chapter
 
     return [
         Chapter(id=0, title="Introduction", start_time=0.0, end_time=60.0),
@@ -35,7 +37,6 @@ def sample_chapters():
 @pytest.fixture
 def sample_metadata():
     """Create sample metadata for testing."""
-    from m4b_splitter.models import AudioMetadata
 
     return AudioMetadata(
         title="Sample Audiobook",
@@ -55,7 +56,6 @@ def sample_metadata():
 @pytest.fixture
 def test_m4b_file(tmp_path):
     """Create a test M4B file fixture."""
-    from m4b_splitter.dependencies import check_dependencies
 
     # Skip if ffmpeg not available
     if not check_dependencies().all_found:

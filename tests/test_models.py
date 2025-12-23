@@ -1,17 +1,18 @@
 """Unit tests for the models module."""
 
-import pytest
+import sys
 from pathlib import Path
 
-import sys
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from m4b_splitter.models import Chapter, AudioMetadata, SplitPart, SplitResult
+from m4b_splitter.models import AudioMetadata, Chapter, SplitPart, SplitResult
 
 
 class TestChapter:
     """Tests for the Chapter dataclass."""
-    
+
     def test_chapter_creation(self):
         """Test basic chapter creation."""
         ch = Chapter(id=0, title="Introduction", start_time=0.0, end_time=120.0)
@@ -19,24 +20,24 @@ class TestChapter:
         assert ch.title == "Introduction"
         assert ch.start_time == 0.0
         assert ch.end_time == 120.0
-    
+
     def test_chapter_duration(self):
         """Test chapter duration calculation."""
         ch = Chapter(id=0, title="Test", start_time=10.0, end_time=70.0)
         assert ch.duration == 60.0
-    
+
     def test_chapter_duration_zero(self):
         """Test chapter with zero duration."""
         ch = Chapter(id=0, title="Empty", start_time=50.0, end_time=50.0)
         assert ch.duration == 0.0
-    
+
     def test_chapter_str_representation(self):
         """Test chapter string representation."""
         ch = Chapter(id=1, title="The Beginning", start_time=0.0, end_time=300.0)
         result = str(ch)
         assert "The Beginning" in result
         assert "300" in result
-    
+
     def test_chapter_with_special_characters(self):
         """Test chapter with special characters in title."""
         ch = Chapter(id=0, title="Chapter 1: The Hero's Journey", start_time=0.0, end_time=100.0)
@@ -45,14 +46,14 @@ class TestChapter:
 
 class TestAudioMetadata:
     """Tests for the AudioMetadata dataclass."""
-    
+
     def test_metadata_creation_minimal(self):
         """Test metadata creation with minimal fields."""
         meta = AudioMetadata()
         assert meta.title is None
         assert meta.artist is None
         assert meta.duration == 0.0
-    
+
     def test_metadata_creation_full(self):
         """Test metadata creation with all fields."""
         meta = AudioMetadata(
@@ -76,7 +77,7 @@ class TestAudioMetadata:
         assert meta.artist == "John Author"
         assert meta.duration == 36000.0
         assert meta.extra_tags["custom"] == "value"
-    
+
     def test_to_ffmpeg_metadata_full(self):
         """Test conversion to ffmpeg metadata format."""
         meta = AudioMetadata(
@@ -90,7 +91,7 @@ class TestAudioMetadata:
             comment="Test comment"
         )
         ffmpeg_meta = meta.to_ffmpeg_metadata()
-        
+
         assert ffmpeg_meta["title"] == "Test Book"
         assert ffmpeg_meta["artist"] == "Test Author"
         assert ffmpeg_meta["album"] == "Test Album"
@@ -99,16 +100,16 @@ class TestAudioMetadata:
         assert ffmpeg_meta["genre"] == "Fiction"
         assert ffmpeg_meta["date"] == "2024"
         assert ffmpeg_meta["comment"] == "Test comment"
-    
+
     def test_to_ffmpeg_metadata_partial(self):
         """Test conversion with only some fields set."""
         meta = AudioMetadata(title="Only Title")
         ffmpeg_meta = meta.to_ffmpeg_metadata()
-        
+
         assert ffmpeg_meta["title"] == "Only Title"
         assert "artist" not in ffmpeg_meta
         assert "album" not in ffmpeg_meta
-    
+
     def test_to_ffmpeg_metadata_with_extra_tags(self):
         """Test that extra tags are included in ffmpeg metadata."""
         meta = AudioMetadata(
@@ -116,7 +117,7 @@ class TestAudioMetadata:
             extra_tags={"narrator": "Voice Actor", "publisher": "AudioCo"}
         )
         ffmpeg_meta = meta.to_ffmpeg_metadata()
-        
+
         assert ffmpeg_meta["title"] == "Book"
         assert ffmpeg_meta["narrator"] == "Voice Actor"
         assert ffmpeg_meta["publisher"] == "AudioCo"
@@ -124,7 +125,7 @@ class TestAudioMetadata:
 
 class TestSplitPart:
     """Tests for the SplitPart dataclass."""
-    
+
     @pytest.fixture
     def sample_chapters(self):
         """Create sample chapters for testing."""
@@ -133,7 +134,7 @@ class TestSplitPart:
             Chapter(id=1, title="Ch2", start_time=100.0, end_time=250.0),
             Chapter(id=2, title="Ch3", start_time=250.0, end_time=400.0),
         ]
-    
+
     def test_split_part_creation(self, sample_chapters):
         """Test basic split part creation."""
         part = SplitPart(
@@ -145,7 +146,7 @@ class TestSplitPart:
         assert part.part_number == 1
         assert part.total_parts == 3
         assert len(part.chapters) == 3
-    
+
     def test_split_part_start_time(self, sample_chapters):
         """Test start time property."""
         part = SplitPart(
@@ -155,7 +156,7 @@ class TestSplitPart:
             output_path=Path("/tmp/test.m4b")
         )
         assert part.start_time == 0.0
-    
+
     def test_split_part_end_time(self, sample_chapters):
         """Test end time property."""
         part = SplitPart(
@@ -165,7 +166,7 @@ class TestSplitPart:
             output_path=Path("/tmp/test.m4b")
         )
         assert part.end_time == 400.0
-    
+
     def test_split_part_duration(self, sample_chapters):
         """Test duration property."""
         part = SplitPart(
@@ -175,7 +176,7 @@ class TestSplitPart:
             output_path=Path("/tmp/test.m4b")
         )
         assert part.duration == 400.0
-    
+
     def test_split_part_chapter_titles(self, sample_chapters):
         """Test chapter titles property."""
         part = SplitPart(
@@ -185,7 +186,7 @@ class TestSplitPart:
             output_path=Path("/tmp/test.m4b")
         )
         assert part.chapter_titles == ["Ch1", "Ch2", "Ch3"]
-    
+
     def test_split_part_empty_chapters(self):
         """Test split part with no chapters."""
         part = SplitPart(
@@ -198,7 +199,7 @@ class TestSplitPart:
         assert part.end_time == 0.0
         assert part.duration == 0.0
         assert part.chapter_titles == []
-    
+
     def test_split_part_str_representation(self, sample_chapters):
         """Test string representation."""
         part = SplitPart(
@@ -214,13 +215,13 @@ class TestSplitPart:
 
 class TestSplitResult:
     """Tests for the SplitResult dataclass."""
-    
+
     @pytest.fixture
     def sample_parts(self):
         """Create sample parts for testing."""
         chapters1 = [Chapter(id=0, title="Ch1", start_time=0.0, end_time=100.0)]
         chapters2 = [Chapter(id=1, title="Ch2", start_time=100.0, end_time=200.0)]
-        
+
         return [
             SplitPart(
                 part_number=1,
@@ -235,7 +236,7 @@ class TestSplitResult:
                 output_path=Path("/tmp/part2.m4b")
             ),
         ]
-    
+
     def test_split_result_success(self, sample_parts):
         """Test successful split result."""
         result = SplitResult(
@@ -247,7 +248,7 @@ class TestSplitResult:
         assert result.success
         assert result.error_message is None
         assert len(result.parts) == 2
-    
+
     def test_split_result_failure(self):
         """Test failed split result."""
         result = SplitResult(
@@ -259,7 +260,7 @@ class TestSplitResult:
         )
         assert not result.success
         assert result.error_message == "File not found"
-    
+
     def test_output_files_property(self, sample_parts):
         """Test output files property."""
         result = SplitResult(
@@ -272,7 +273,7 @@ class TestSplitResult:
         assert len(output_files) == 2
         assert output_files[0] == Path("/tmp/part1.m4b")
         assert output_files[1] == Path("/tmp/part2.m4b")
-    
+
     def test_str_representation_success(self, sample_parts):
         """Test string representation for success."""
         result = SplitResult(
@@ -284,7 +285,7 @@ class TestSplitResult:
         result_str = str(result)
         assert "source.m4b" in result_str
         assert "2 parts" in result_str
-    
+
     def test_str_representation_failure(self):
         """Test string representation for failure."""
         result = SplitResult(
