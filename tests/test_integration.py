@@ -3,21 +3,20 @@
 These tests require ffmpeg to be installed and create actual M4B files.
 """
 
-import pytest
+import sys
 from pathlib import Path
 
-import sys
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from m4b_splitter import (
-    split_m4b,
     M4BSplitter,
+    check_dependencies,
     extract_chapters,
     extract_metadata,
+    split_m4b,
     validate_m4b_file,
-    check_dependencies,
-    IPOD_PRESETS,
 )
 from m4b_splitter.probe import probe_file
 from tests.test_utils import create_test_m4b

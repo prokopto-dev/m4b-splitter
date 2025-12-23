@@ -1,8 +1,9 @@
 """Shared pytest fixtures and configuration."""
 
-import pytest
-from pathlib import Path
 import sys
+from pathlib import Path
+
+import pytest
 
 # Ensure the package is importable
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -20,7 +21,7 @@ def tmp_m4b_dir(tmp_path):
 def sample_chapters():
     """Create sample chapters for testing."""
     from m4b_splitter.models import Chapter
-    
+
     return [
         Chapter(id=0, title="Introduction", start_time=0.0, end_time=60.0),
         Chapter(id=1, title="Chapter 1", start_time=60.0, end_time=180.0),
@@ -34,7 +35,7 @@ def sample_chapters():
 def sample_metadata():
     """Create sample metadata for testing."""
     from m4b_splitter.models import AudioMetadata
-    
+
     return AudioMetadata(
         title="Sample Audiobook",
         artist="Test Author",

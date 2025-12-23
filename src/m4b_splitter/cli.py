@@ -10,13 +10,13 @@ try:
     from rich.console import Console
     from rich.panel import Panel
     from rich.progress import (
+        BarColumn,
         Progress,
         SpinnerColumn,
-        TextColumn,
-        BarColumn,
         TaskProgressColumn,
-        TimeRemainingColumn,
+        TextColumn,
         TimeElapsedColumn,
+        TimeRemainingColumn,
     )
     from rich.table import Table
     from rich.text import Text
@@ -26,13 +26,13 @@ except ImportError:
     RICH_AVAILABLE = False
     typer = None  # type: ignore
 
-from m4b_splitter.dependencies import check_dependencies, format_dependency_check
 from m4b_splitter import (
-    M4BSplitter,
     IPOD_PRESETS,
     FFmpegProgress,
+    M4BSplitter,
     format_time_human,
 )
+from m4b_splitter.dependencies import check_dependencies, format_dependency_check
 
 
 def parse_duration(duration_str: str) -> float:

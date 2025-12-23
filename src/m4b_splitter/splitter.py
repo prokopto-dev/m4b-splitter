@@ -4,10 +4,10 @@ import re
 import subprocess
 import tempfile
 import threading
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Callable
 
 from m4b_splitter.models import AudioMetadata, Chapter, SplitPart, SplitResult
 from m4b_splitter.probe import extract_chapters, extract_metadata, validate_m4b_file
@@ -320,7 +320,7 @@ def extract_cover_art(input_file: Path, output_file: Path) -> bool:
     ]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
         return (
             result.returncode == 0
             and output_file.exists()

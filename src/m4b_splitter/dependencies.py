@@ -27,7 +27,7 @@ class DependencyStatus:
     found: bool
     path: str | None = None
     version: str | None = None
-    
+
 
 @dataclass
 class DependencyCheckResult:
@@ -36,12 +36,12 @@ class DependencyCheckResult:
     ffprobe: DependencyStatus
     os_type: OSType
     os_name: str
-    
+
     @property
     def all_found(self) -> bool:
         """Check if all dependencies are found."""
         return self.ffmpeg.found and self.ffprobe.found
-    
+
     @property
     def missing(self) -> list[str]:
         """Get list of missing dependencies."""
@@ -56,20 +56,20 @@ class DependencyCheckResult:
 def detect_os() -> tuple[OSType, str]:
     """
     Detect the operating system and distribution.
-    
+
     Returns:
         Tuple of (OSType, human-readable name).
     """
     system = platform.system().lower()
-    
+
     if system == "darwin":
         version = platform.mac_ver()[0]
         return OSType.MACOS, f"macOS {version}"
-    
+
     elif system == "windows":
         version = platform.win32_ver()[0]
         return OSType.WINDOWS, f"Windows {version}"
-    
+
     elif system == "linux":
         # Try to detect Linux distribution
         try:
@@ -80,63 +80,63 @@ def detect_os() -> tuple[OSType, str]:
                     if "=" in line:
                         key, value = line.strip().split("=", 1)
                         os_release[key] = value.strip('"')
-                
+
                 dist_id = os_release.get("ID", "").lower()
                 dist_id_like = os_release.get("ID_LIKE", "").lower()
                 dist_name = os_release.get("PRETTY_NAME", "Linux")
-                
+
                 # Check for Debian-based
                 if dist_id in ("debian", "ubuntu", "linuxmint", "pop", "elementary", "zorin", "kali"):
                     return OSType.LINUX_DEBIAN, dist_name
                 if "debian" in dist_id_like or "ubuntu" in dist_id_like:
                     return OSType.LINUX_DEBIAN, dist_name
-                
+
                 # Check for Red Hat-based
                 if dist_id in ("fedora", "rhel", "centos", "rocky", "almalinux", "oracle"):
                     return OSType.LINUX_REDHAT, dist_name
                 if "fedora" in dist_id_like or "rhel" in dist_id_like:
                     return OSType.LINUX_REDHAT, dist_name
-                
+
                 # Check for Arch-based
                 if dist_id in ("arch", "manjaro", "endeavouros", "garuda"):
                     return OSType.LINUX_ARCH, dist_name
                 if "arch" in dist_id_like:
                     return OSType.LINUX_ARCH, dist_name
-                
+
                 # Check for SUSE-based
                 if dist_id in ("opensuse", "suse", "opensuse-leap", "opensuse-tumbleweed"):
                     return OSType.LINUX_SUSE, dist_name
                 if "suse" in dist_id_like:
                     return OSType.LINUX_SUSE, dist_name
-                
+
                 # Check for Alpine
                 if dist_id == "alpine":
                     return OSType.LINUX_ALPINE, dist_name
-                
+
                 return OSType.LINUX_OTHER, dist_name
-                
+
         except FileNotFoundError:
             pass
-        
+
         return OSType.LINUX_OTHER, "Linux"
-    
+
     return OSType.UNKNOWN, platform.system()
 
 
 def get_version(executable: str) -> str | None:
     """
     Get version string of an executable.
-    
+
     Args:
         executable: Path to the executable.
-        
+
     Returns:
         Version string or None if not found.
     """
     try:
         result = subprocess.run(
             [executable, "-version"],
-            capture_output=True,
+            check=False, capture_output=True,
             text=True,
             timeout=10
         )
@@ -152,15 +152,15 @@ def get_version(executable: str) -> str | None:
 def check_dependency(name: str) -> DependencyStatus:
     """
     Check if a dependency is available.
-    
+
     Args:
         name: Name of the executable to check.
-        
+
     Returns:
         DependencyStatus with check results.
     """
     path = shutil.which(name)
-    
+
     if path:
         version = get_version(path)
         return DependencyStatus(
@@ -169,7 +169,7 @@ def check_dependency(name: str) -> DependencyStatus:
             path=path,
             version=version
         )
-    
+
     return DependencyStatus(
         name=name,
         found=False
@@ -179,12 +179,12 @@ def check_dependency(name: str) -> DependencyStatus:
 def check_dependencies() -> DependencyCheckResult:
     """
     Check all required dependencies.
-    
+
     Returns:
         DependencyCheckResult with status of all dependencies.
     """
     os_type, os_name = detect_os()
-    
+
     return DependencyCheckResult(
         ffmpeg=check_dependency("ffmpeg"),
         ffprobe=check_dependency("ffprobe"),
@@ -196,10 +196,10 @@ def check_dependencies() -> DependencyCheckResult:
 def get_installation_instructions(os_type: OSType) -> str:
     """
     Get installation instructions for the detected OS.
-    
+
     Args:
         os_type: The detected operating system type.
-        
+
     Returns:
         Installation instructions as a string.
     """
@@ -288,17 +288,17 @@ def get_installation_instructions(os_type: OSType) -> str:
 
   FFmpeg is available for Windows, macOS, Linux, and BSD systems."""
     }
-    
+
     return instructions.get(os_type, instructions[OSType.UNKNOWN])
 
 
 def format_dependency_check(result: DependencyCheckResult) -> str:
     """
     Format dependency check result as a human-readable string.
-    
+
     Args:
         result: The dependency check result.
-        
+
     Returns:
         Formatted string for display.
     """
@@ -308,10 +308,10 @@ def format_dependency_check(result: DependencyCheckResult) -> str:
     lines.append("=" * 60)
     lines.append(f"\nOperating System: {result.os_name}")
     lines.append("")
-    
+
     # FFmpeg status
     if result.ffmpeg.found:
-        lines.append(f"✓ ffmpeg:  Found")
+        lines.append("✓ ffmpeg:  Found")
         lines.append(f"  Path:    {result.ffmpeg.path}")
         if result.ffmpeg.version:
             # Truncate long version strings
@@ -321,12 +321,12 @@ def format_dependency_check(result: DependencyCheckResult) -> str:
             lines.append(f"  Version: {version}")
     else:
         lines.append("✗ ffmpeg:  NOT FOUND")
-    
+
     lines.append("")
-    
+
     # FFprobe status
     if result.ffprobe.found:
-        lines.append(f"✓ ffprobe: Found")
+        lines.append("✓ ffprobe: Found")
         lines.append(f"  Path:    {result.ffprobe.path}")
         if result.ffprobe.version:
             version = result.ffprobe.version
@@ -335,9 +335,9 @@ def format_dependency_check(result: DependencyCheckResult) -> str:
             lines.append(f"  Version: {version}")
     else:
         lines.append("✗ ffprobe: NOT FOUND")
-    
+
     lines.append("")
-    
+
     # Overall status and instructions
     if result.all_found:
         lines.append("Status: All dependencies satisfied ✓")
@@ -347,20 +347,20 @@ def format_dependency_check(result: DependencyCheckResult) -> str:
         lines.append("INSTALLATION INSTRUCTIONS")
         lines.append("-" * 40)
         lines.append(get_installation_instructions(result.os_type))
-    
+
     lines.append("")
     lines.append("=" * 60)
-    
+
     return "\n".join(lines)
 
 
 def ensure_dependencies() -> DependencyCheckResult:
     """
     Check dependencies and print status.
-    
+
     This is a convenience function that checks dependencies,
     prints the result, and returns the check result.
-    
+
     Returns:
         DependencyCheckResult with status of all dependencies.
     """
@@ -372,12 +372,12 @@ def ensure_dependencies() -> DependencyCheckResult:
 def require_dependencies() -> None:
     """
     Check dependencies and raise an error if any are missing.
-    
+
     Raises:
         RuntimeError: If ffmpeg or ffprobe is not found.
     """
     result = check_dependencies()
-    
+
     if not result.all_found:
         error_msg = format_dependency_check(result)
         raise RuntimeError(

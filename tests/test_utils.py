@@ -36,7 +36,7 @@ def create_test_m4b(
             "-f",
             "lavfi",
             "-i",
-            f"anullsrc=r=44100:cl=mono",
+            "anullsrc=r=44100:cl=mono",
             "-t",
             str(total_duration),
             "-c:a",
@@ -46,13 +46,13 @@ def create_test_m4b(
             str(audio_file),
         ]
 
-        result = subprocess.run(cmd, capture_output=True)
+        result = subprocess.run(cmd, check=False, capture_output=True)
         if result.returncode != 0:
             return False
 
         # Create metadata file with chapters
         metadata_file = temp_path / "metadata.txt"
-        with open(metadata_file, "w") as f:
+        with metadata_file.open("w") as f:
             f.write(";FFMETADATA1\n")
             f.write(f"title={title}\n")
             f.write(f"artist={artist}\n")
@@ -62,7 +62,7 @@ def create_test_m4b(
             for i in range(num_chapters):
                 start_ms = int(i * chapter_duration * 1000)
                 end_ms = int((i + 1) * chapter_duration * 1000)
-                f.write(f"\n[CHAPTER]\n")
+                f.write("\n[CHAPTER]\n")
                 f.write("TIMEBASE=1/1000\n")
                 f.write(f"START={start_ms}\n")
                 f.write(f"END={end_ms}\n")
@@ -89,5 +89,5 @@ def create_test_m4b(
             str(output_path),
         ]
 
-        result = subprocess.run(cmd, capture_output=True)
+        result = subprocess.run(cmd, check=False, capture_output=True)
         return result.returncode == 0 and output_path.exists()
