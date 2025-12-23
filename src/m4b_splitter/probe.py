@@ -45,9 +45,9 @@ def probe_file(file_path: Path) -> dict:
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         return json.loads(result.stdout)
     except subprocess.CalledProcessError as e:
-        raise ProbeError(f"ffprobe failed: {e.stderr}")
+        raise ProbeError(f"ffprobe failed: {e.stderr}") from e
     except json.JSONDecodeError as e:
-        raise ProbeError(f"Failed to parse ffprobe output: {e}")
+        raise ProbeError(f"Failed to parse ffprobe output: {e}") from e
 
 
 def extract_chapters(file_path: Path) -> list[Chapter]:

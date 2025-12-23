@@ -4,7 +4,7 @@ import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import TextIO
+from typing import ClassVar, TextIO
 
 
 class ProgressStep(Enum):
@@ -60,7 +60,7 @@ class ProgressCallback(ABC):
 class ConsoleProgress(ProgressCallback):
     """Console-based progress display."""
 
-    STEP_NAMES = {
+    STEP_NAMES: ClassVar[dict[ProgressStep, str]] = {
         ProgressStep.VALIDATING: "Validating input file",
         ProgressStep.EXTRACTING_METADATA: "Extracting metadata",
         ProgressStep.EXTRACTING_CHAPTERS: "Extracting chapters",
@@ -75,7 +75,7 @@ class ConsoleProgress(ProgressCallback):
         self,
         output: TextIO = sys.stdout,
         show_progress_bar: bool = True,
-        bar_width: int = 40
+        bar_width: int = 40,
     ):
         """
         Initialize console progress display.
@@ -176,7 +176,7 @@ class ProgressTracker:
         message: str,
         current: int = 0,
         total: int = 0,
-        detail: str | None = None
+        detail: str | None = None,
     ) -> None:
         """
         Send a progress update to all callbacks.
@@ -189,11 +189,7 @@ class ProgressTracker:
             detail: Optional detail message.
         """
         update = ProgressUpdate(
-            step=step,
-            message=message,
-            current=current,
-            total=total,
-            detail=detail
+            step=step, message=message, current=current, total=total, detail=detail
         )
         for callback in self._callbacks:
             callback.on_progress(update)

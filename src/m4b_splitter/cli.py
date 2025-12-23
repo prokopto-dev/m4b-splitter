@@ -1,4 +1,6 @@
+# ruff: noqa: B008
 """Command-line interface for M4B splitter."""
+# we will ignore Ruff B008 here because of how Typer handles args
 
 import sys
 from enum import Enum
@@ -198,7 +200,7 @@ if RICH_AVAILABLE:
                 raise typer.Exit(1)
         except ValueError as e:
             console.print(f"[red]Error:[/red] {e}")
-            raise typer.Exit(1)
+            raise typer.Exit(1) from e
 
         if output_dir is None:
             output_dir = input_file.parent
