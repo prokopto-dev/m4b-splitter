@@ -197,9 +197,7 @@ def parse_ffmpeg_progress(line: str, total_duration: float) -> FFmpegProgress | 
         hours, mins, secs = time_match.groups()
         progress.time_seconds = int(hours) * 3600 + int(mins) * 60 + float(secs)
         if total_duration > 0:
-            progress.percent = min(
-                100.0, (progress.time_seconds / total_duration) * 100
-            )
+            progress.percent = min(100.0, (progress.time_seconds / total_duration) * 100)
 
     # Parse size
     size_match = re.search(r"size=\s*(\d+)kB", line)
@@ -253,9 +251,7 @@ def sanitize_filename(name: str) -> str:
     return sanitized or "untitled"
 
 
-def plan_splits(
-    chapters: list[Chapter], max_duration_seconds: float
-) -> list[list[Chapter]]:
+def plan_splits(chapters: list[Chapter], max_duration_seconds: float) -> list[list[Chapter]]:
     """
     Plan how to split chapters into parts based on maximum duration.
 
@@ -321,11 +317,7 @@ def extract_cover_art(input_file: Path, output_file: Path) -> bool:
 
     try:
         result = subprocess.run(cmd, check=False, capture_output=True, text=True)
-        return (
-            result.returncode == 0
-            and output_file.exists()
-            and output_file.stat().st_size > 0
-        )
+        return result.returncode == 0 and output_file.exists() and output_file.stat().st_size > 0
     except Exception:
         return False
 
@@ -385,10 +377,7 @@ def create_metadata_file(
         for key, value in metadata.extra_tags.items():
             # Escape special characters
             value = (
-                value.replace("=", "\\=")
-                .replace(";", "\\;")
-                .replace("#", "\\#")
-                .replace("\n", " ")
+                value.replace("=", "\\=").replace(";", "\\;").replace("#", "\\#").replace("\n", " ")
             )
             f.write(f"{key}={value}\n")
 
@@ -403,11 +392,7 @@ def create_metadata_file(
             f.write(f"START={start_ms}\n")
             f.write(f"END={end_ms}\n")
             # Escape chapter title
-            ch_title = (
-                chapter.title.replace("=", "\\=")
-                .replace(";", "\\;")
-                .replace("#", "\\#")
-            )
+            ch_title = chapter.title.replace("=", "\\=").replace(";", "\\;").replace("#", "\\#")
             f.write(f"title={ch_title}\n")
 
     return metadata_path
@@ -605,9 +590,7 @@ class M4BSplitter:
         output_pattern: str = "{title} - Part {part} of {total}.m4b",
         ipod_mode: bool = False,
         ipod_preset: str = "standard",
-        progress_callback: (
-            Callable[[str, float, FFmpegProgress | None], None] | None
-        ) = None,
+        progress_callback: (Callable[[str, float, FFmpegProgress | None], None] | None) = None,
     ) -> SplitResult:
         """
         Split an M4B file into parts based on maximum duration.
@@ -629,9 +612,7 @@ class M4BSplitter:
         output_dir = Path(output_dir)
         max_duration_seconds = max_duration_hours * 3600
 
-        def report_progress(
-            step: str, percent: float, ffmpeg_prog: FFmpegProgress | None = None
-        ):
+        def report_progress(step: str, percent: float, ffmpeg_prog: FFmpegProgress | None = None):
             if progress_callback:
                 progress_callback(step, percent, ffmpeg_prog)
 
@@ -697,9 +678,7 @@ class M4BSplitter:
                 progress_per_part = 75 / total_parts  # Reserve 20-95% for splitting
 
                 for part_num, part_chapters in enumerate(split_plan, 1):
-                    part_base_progress = (
-                        base_progress + (part_num - 1) * progress_per_part
-                    )
+                    part_base_progress = base_progress + (part_num - 1) * progress_per_part
 
                     # Generate output filename
                     title = sanitize_filename(metadata.title or input_file.stem)
@@ -733,13 +712,9 @@ class M4BSplitter:
                         # Convert ffmpeg progress to overall progress
                         part_progress = prog.percent / 100 * progress_per_part
                         overall = part_base_progress + part_progress
-                        report_progress(
-                            f"Encoding part {part_num}/{total_parts}", overall, prog
-                        )
+                        report_progress(f"Encoding part {part_num}/{total_parts}", overall, prog)
 
-                    report_progress(
-                        f"Processing part {part_num}/{total_parts}", part_base_progress
-                    )
+                    report_progress(f"Processing part {part_num}/{total_parts}", part_base_progress)
 
                     success, error = split_audio_segment(
                         input_file=input_file,
@@ -753,14 +728,10 @@ class M4BSplitter:
                     )
 
                     if not success:
-                        raise SplitterError(
-                            f"Failed to create part {part_num}: {error}"
-                        )
+                        raise SplitterError(f"Failed to create part {part_num}: {error}")
 
                     if not output_file.exists():
-                        raise SplitterError(
-                            f"Output file was not created: {output_file}"
-                        )
+                        raise SplitterError(f"Output file was not created: {output_file}")
 
                     parts.append(
                         SplitPart(
@@ -807,9 +778,7 @@ def split_m4b(
     output_pattern: str = "{title} - Part {part} of {total}.m4b",
     ipod_mode: bool = False,
     ipod_preset: str = "standard",
-    progress_callback: (
-        Callable[[str, float, FFmpegProgress | None], None] | None
-    ) = None,
+    progress_callback: (Callable[[str, float, FFmpegProgress | None], None] | None) = None,
 ) -> SplitResult:
     """
     Convenience function to split an M4B file.

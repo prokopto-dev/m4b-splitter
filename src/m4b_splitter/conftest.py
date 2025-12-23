@@ -47,5 +47,5 @@ def sample_metadata():
         bit_rate=128000,
         sample_rate=44100,
         channels=2,
-        codec="aac"
+        codec="aac",
     )

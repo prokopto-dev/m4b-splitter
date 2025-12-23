@@ -11,7 +11,7 @@ class Chapter:
     id: int
     title: str
     start_time: float  # seconds
-    end_time: float    # seconds
+    end_time: float  # seconds
 
     @property
     def duration(self) -> float:

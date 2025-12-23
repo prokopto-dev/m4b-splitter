@@ -92,9 +92,7 @@ if RICH_AVAILABLE:
     console = Console()
 
     def print_presets_table():
-        table = Table(
-            title="iPod Encoding Presets", show_header=True, header_style="bold cyan"
-        )
+        table = Table(title="iPod Encoding Presets", show_header=True, header_style="bold cyan")
         table.add_column("Preset", style="green")
         table.add_column("Sample Rate")
         table.add_column("Bitrate")
@@ -155,9 +153,7 @@ if RICH_AVAILABLE:
             content.append(f"OS: {result.os_name}\n\n", style="dim")
             content.append(f"ffmpeg:  {result.ffmpeg.path}\n", style="cyan")
             content.append(f"ffprobe: {result.ffprobe.path}\n", style="cyan")
-            console.print(
-                Panel(content, title="Dependency Check", border_style="green")
-            )
+            console.print(Panel(content, title="Dependency Check", border_style="green"))
         else:
             console.print(format_dependency_check(result))
             raise typer.Exit(1)
@@ -169,21 +165,11 @@ if RICH_AVAILABLE:
 
     @app.command()
     def split(
-        input_file: Path = typer.Argument(
-            ..., help="Input M4B file to split", exists=True
-        ),
-        output_dir: Path = typer.Option(
-            None, "--output", "-o", help="Output directory"
-        ),
-        max_duration: str = typer.Option(
-            "8h", "--duration", "-d", help="Max duration per part"
-        ),
-        pattern: str = typer.Option(
-            "{title} - Part {part} of {total}.m4b", "--pattern", "-p"
-        ),
-        ipod: bool = typer.Option(
-            False, "--ipod", help="Re-encode for iPod compatibility"
-        ),
+        input_file: Path = typer.Argument(..., help="Input M4B file to split", exists=True),
+        output_dir: Path = typer.Option(None, "--output", "-o", help="Output directory"),
+        max_duration: str = typer.Option("8h", "--duration", "-d", help="Max duration per part"),
+        pattern: str = typer.Option("{title} - Part {part} of {total}.m4b", "--pattern", "-p"),
+        ipod: bool = typer.Option(False, "--ipod", help="Re-encode for iPod compatibility"),
         ipod_preset: PresetChoice = typer.Option(PresetChoice.standard, "--preset"),
     ):
         """Split an M4B audiobook file into smaller parts."""
@@ -248,18 +234,11 @@ if RICH_AVAILABLE:
             console=console,
             transient=False,
         ) as progress:
-
             main_task = progress.add_task("Splitting audiobook...", total=100)
-            ffmpeg_task = progress.add_task(
-                "[cyan]Waiting...", total=100, visible=False
-            )
+            ffmpeg_task = progress.add_task("[cyan]Waiting...", total=100, visible=False)
 
-            def progress_callback(
-                step: str, percent: float, ffmpeg_prog: FFmpegProgress | None
-            ):
-                progress.update(
-                    main_task, completed=percent, description=f"[bold blue]{step}"
-                )
+            def progress_callback(step: str, percent: float, ffmpeg_prog: FFmpegProgress | None):
+                progress.update(main_task, completed=percent, description=f"[bold blue]{step}")
 
                 if ffmpeg_prog and ffmpeg_prog.percent > 0:
                     progress.update(ffmpeg_task, visible=True)
@@ -377,13 +356,9 @@ else:
         split_parser.add_argument("input_file", type=Path, help="Input M4B file")
         split_parser.add_argument("-o", "--output", type=Path, help="Output directory")
         split_parser.add_argument("-d", "--duration", default="8h")
-        split_parser.add_argument(
-            "-p", "--pattern", default="{title} - Part {part} of {total}.m4b"
-        )
+        split_parser.add_argument("-p", "--pattern", default="{title} - Part {part} of {total}.m4b")
         split_parser.add_argument("--ipod", action="store_true")
-        split_parser.add_argument(
-            "--preset", default="standard", choices=list(IPOD_PRESETS.keys())
-        )
+        split_parser.add_argument("--preset", default="standard", choices=list(IPOD_PRESETS.keys()))
 
         parser.add_argument("-v", "--version", action="store_true")
 

@@ -9,12 +9,13 @@ from enum import Enum, auto
 
 class OSType(Enum):
     """Operating system types."""
+
     LINUX_DEBIAN = auto()  # Debian, Ubuntu, Mint, Pop!_OS
     LINUX_REDHAT = auto()  # RHEL, Fedora, CentOS, Rocky
-    LINUX_ARCH = auto()    # Arch, Manjaro
-    LINUX_SUSE = auto()    # openSUSE
+    LINUX_ARCH = auto()  # Arch, Manjaro
+    LINUX_SUSE = auto()  # openSUSE
     LINUX_ALPINE = auto()  # Alpine
-    LINUX_OTHER = auto()   # Other Linux
+    LINUX_OTHER = auto()  # Other Linux
     MACOS = auto()
     WINDOWS = auto()
     UNKNOWN = auto()
@@ -23,6 +24,7 @@ class OSType(Enum):
 @dataclass
 class DependencyStatus:
     """Status of a dependency check."""
+
     name: str
     found: bool
     path: str | None = None
@@ -32,6 +34,7 @@ class DependencyStatus:
 @dataclass
 class DependencyCheckResult:
     """Result of checking all dependencies."""
+
     ffmpeg: DependencyStatus
     ffprobe: DependencyStatus
     os_type: OSType
@@ -86,7 +89,15 @@ def detect_os() -> tuple[OSType, str]:
                 dist_name = os_release.get("PRETTY_NAME", "Linux")
 
                 # Check for Debian-based
-                if dist_id in ("debian", "ubuntu", "linuxmint", "pop", "elementary", "zorin", "kali"):
+                if dist_id in (
+                    "debian",
+                    "ubuntu",
+                    "linuxmint",
+                    "pop",
+                    "elementary",
+                    "zorin",
+                    "kali",
+                ):
                     return OSType.LINUX_DEBIAN, dist_name
                 if "debian" in dist_id_like or "ubuntu" in dist_id_like:
                     return OSType.LINUX_DEBIAN, dist_name
@@ -135,10 +146,7 @@ def get_version(executable: str) -> str | None:
     """
     try:
         result = subprocess.run(
-            [executable, "-version"],
-            check=False, capture_output=True,
-            text=True,
-            timeout=10
+            [executable, "-version"], check=False, capture_output=True, text=True, timeout=10
         )
         if result.returncode == 0:
             # Extract first line which usually contains version
@@ -163,17 +171,9 @@ def check_dependency(name: str) -> DependencyStatus:
 
     if path:
         version = get_version(path)
-        return DependencyStatus(
-            name=name,
-            found=True,
-            path=path,
-            version=version
-        )
+        return DependencyStatus(name=name, found=True, path=path, version=version)
 
-    return DependencyStatus(
-        name=name,
-        found=False
-    )
+    return DependencyStatus(name=name, found=False)
 
 
 def check_dependencies() -> DependencyCheckResult:
@@ -189,7 +189,7 @@ def check_dependencies() -> DependencyCheckResult:
         ffmpeg=check_dependency("ffmpeg"),
         ffprobe=check_dependency("ffprobe"),
         os_type=os_type,
-        os_name=os_name
+        os_name=os_name,
     )
 
 
@@ -213,7 +213,6 @@ def get_installation_instructions(os_type: OSType) -> str:
     sudo add-apt-repository ppa:savoury1/ffmpeg4
     sudo apt update
     sudo apt install ffmpeg""",
-
         OSType.LINUX_REDHAT: """
   For Fedora, run:
     sudo dnf install ffmpeg ffmpeg-devel
@@ -222,11 +221,9 @@ def get_installation_instructions(os_type: OSType) -> str:
     sudo dnf install epel-release
     sudo dnf install --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm -E %rhel).noarch.rpm
     sudo dnf install ffmpeg""",
-
         OSType.LINUX_ARCH: """
   For Arch/Manjaro, run:
     sudo pacman -S ffmpeg""",
-
         OSType.LINUX_SUSE: """
   For openSUSE, run:
     sudo zypper install ffmpeg
@@ -235,11 +232,9 @@ def get_installation_instructions(os_type: OSType) -> str:
     sudo zypper addrepo -cfp 90 'https://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/' packman
     sudo zypper refresh
     sudo zypper install --from packman ffmpeg""",
-
         OSType.LINUX_ALPINE: """
   For Alpine Linux, run:
     sudo apk add ffmpeg""",
-
         OSType.LINUX_OTHER: """
   For most Linux distributions, ffmpeg is available in the package manager.
   Try one of these commands:
@@ -250,7 +245,6 @@ def get_installation_instructions(os_type: OSType) -> str:
 
   Or build from source:
     https://ffmpeg.org/download.html#build-linux""",
-
         OSType.MACOS: """
   For macOS, the easiest way is using Homebrew:
     brew install ffmpeg
@@ -261,7 +255,6 @@ def get_installation_instructions(os_type: OSType) -> str:
 
   Alternatively, use MacPorts:
     sudo port install ffmpeg""",
-
         OSType.WINDOWS: """
   For Windows, you have several options:
 
@@ -281,12 +274,11 @@ def get_installation_instructions(os_type: OSType) -> str:
     3. Add the 'bin' folder to your PATH environment variable
 
   After installation, restart your terminal/command prompt.""",
-
         OSType.UNKNOWN: """
   Please visit https://ffmpeg.org/download.html for installation
   instructions for your operating system.
 
-  FFmpeg is available for Windows, macOS, Linux, and BSD systems."""
+  FFmpeg is available for Windows, macOS, Linux, and BSD systems.""",
     }
 
     return instructions.get(os_type, instructions[OSType.UNKNOWN])
@@ -381,6 +373,5 @@ def require_dependencies() -> None:
     if not result.all_found:
         error_msg = format_dependency_check(result)
         raise RuntimeError(
-            f"Missing required dependencies: {', '.join(result.missing)}\n\n"
-            f"{error_msg}"
+            f"Missing required dependencies: {', '.join(result.missing)}\n\n{error_msg}"
         )

@@ -79,9 +79,7 @@ def extract_chapters(file_path: Path) -> list[Chapter]:
         tags = ch.get("tags", {})
         title = tags.get("title", f"Chapter {i + 1}")
 
-        chapters.append(
-            Chapter(id=i, title=title, start_time=start_time, end_time=end_time)
-        )
+        chapters.append(Chapter(id=i, title=title, start_time=start_time, end_time=end_time))
 
     return chapters
 
