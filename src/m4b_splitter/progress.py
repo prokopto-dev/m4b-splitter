@@ -158,7 +158,7 @@ class ProgressTracker:
     allowing multiple callbacks to be notified of progress updates.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize progress tracker."""
         self._callbacks: list[ProgressCallback] = []
 

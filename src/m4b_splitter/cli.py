@@ -91,7 +91,7 @@ if RICH_AVAILABLE:
 
     console = Console()
 
-    def print_presets_table():
+    def print_presets_table() -> None:
         table = Table(title="iPod Encoding Presets", show_header=True, header_style="bold cyan")
         table.add_column("Preset", style="green")
         table.add_column("Sample Rate")
@@ -142,7 +142,7 @@ if RICH_AVAILABLE:
         console.print(table)
 
     @app.command()
-    def check():
+    def check() -> None:
         """Check if ffmpeg/ffprobe are installed."""
         result = check_dependencies()
 
@@ -159,7 +159,7 @@ if RICH_AVAILABLE:
             raise typer.Exit(1)
 
     @app.command()
-    def presets():
+    def presets() -> None:
         """Show available iPod encoding presets."""
         print_presets_table()
 
@@ -171,7 +171,7 @@ if RICH_AVAILABLE:
         pattern: str = typer.Option("{title} - Part {part} of {total}.m4b", "--pattern", "-p"),
         ipod: bool = typer.Option(False, "--ipod", help="Re-encode for iPod compatibility"),
         ipod_preset: PresetChoice = typer.Option(PresetChoice.standard, "--preset"),
-    ):
+    ) -> None:
         """Split an M4B audiobook file into smaller parts."""
         dep_result = check_dependencies()
         if not dep_result.all_found:
@@ -237,7 +237,9 @@ if RICH_AVAILABLE:
             main_task = progress.add_task("Splitting audiobook...", total=100)
             ffmpeg_task = progress.add_task("[cyan]Waiting...", total=100, visible=False)
 
-            def progress_callback(step: str, percent: float, ffmpeg_prog: FFmpegProgress | None):
+            def progress_callback(
+                step: str, percent: float, ffmpeg_prog: FFmpegProgress | None
+            ) -> None:
                 progress.update(main_task, completed=percent, description=f"[bold blue]{step}")
 
                 if ffmpeg_prog and ffmpeg_prog.percent > 0:
@@ -323,7 +325,7 @@ if RICH_AVAILABLE:
     def main_callback(
         ctx: typer.Context,
         version: bool = typer.Option(False, "--version", "-v", help="Show version"),
-    ):
+    ) -> None:
         """M4B Splitter - Split audiobook files by chapter."""
         if version:
             from m4b_splitter import __version__
@@ -434,11 +436,15 @@ else:
             parser.print_help()
             return 0
 
-    def app():
+    def app() -> None:
+        """
+        Fallback CLI using argparse.
+        """
         sys.exit(fallback_main())
 
 
-def main():
+def main() -> None:
+    """Entry point for M4B Splitter CLI."""
     if RICH_AVAILABLE:
         app()
     else:

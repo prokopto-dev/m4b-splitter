@@ -578,7 +578,7 @@ class M4BSplitter:
     and chapter information.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the M4B splitter."""
         pass
 
@@ -612,7 +612,9 @@ class M4BSplitter:
         output_dir = Path(output_dir)
         max_duration_seconds = max_duration_hours * 3600
 
-        def report_progress(step: str, percent: float, ffmpeg_prog: FFmpegProgress | None = None):
+        def report_progress(
+            step: str, percent: float, ffmpeg_prog: FFmpegProgress | None = None
+        ) -> SplitResult:
             if progress_callback:
                 progress_callback(step, percent, ffmpeg_prog)
 
@@ -708,7 +710,7 @@ class M4BSplitter:
                     start_time = part_chapters[0].start_time
                     end_time = part_chapters[-1].end_time
 
-                    def ffmpeg_progress_handler(prog: FFmpegProgress):
+                    def ffmpeg_progress_handler(prog: FFmpegProgress) -> None:
                         # Convert ffmpeg progress to overall progress
                         part_progress = prog.percent / 100 * progress_per_part
                         overall = part_base_progress + part_progress
